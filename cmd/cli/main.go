@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	data := wfc.MakeTiledData("castle_data.json")
+	data := wfc.MakeTiledData("pipe_data.json")
 	m := wfc.NewTiledModel(data, 20, 20, false)
 
 	i, _ := m.Generate()
