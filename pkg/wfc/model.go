@@ -3,7 +3,7 @@ package wfc
 import "image"
 
 type Iterator interface {
-	Iterator(iterations int) (image.Image, bool, bool)
+	Iterate(iterations int) (image.Image, bool, bool)
 }
 
 type Generator interface {

@@ -1,6 +1,10 @@
 package wfc
 
-import "math"
+import (
+	"math"
+	"math/rand"
+	"time"
+)
 
 type BaseModel struct {
 	InitField  bool           // Generation initiliazed?
@@ -88,4 +92,67 @@ func (b *BaseModel) Observe(sm AlgorithmApplier) bool {
 	b.Changes[argminx][argminy] = true
 
 	return false
+}
+
+func (b *BaseModel) IterateOnce(sm AlgorithmApplier) bool {
+	finished := b.Observe(sm)
+
+	if finished {
+		return true
+	}
+
+	for sm.Propagate() {
+		// Empty loop
+	}
+
+	return false // Not finished yet
+}
+
+func (b *BaseModel) Iterate(sm AlgorithmApplier, iterations int) bool {
+	if !b.InitField {
+		sm.Clear()
+	}
+
+	for i := 0; i < iterations; i++ {
+		finished := b.IterateOnce(sm)
+		if finished {
+			return true
+		}
+	}
+	return false // Not finished yet
+}
+
+func (baseModel *BaseModel) Generate(sm AlgorithmApplier) {
+	sm.Clear()
+	for {
+		finished := baseModel.IterateOnce(sm)
+		if finished {
+			return
+		}
+	}
+}
+
+func (b *BaseModel) IsGenSuccess() bool {
+	return b.GenSuccess
+}
+
+func (baseModel *BaseModel) SetSeed(seed int64) {
+	baseModel.Rng = rand.New(rand.NewSource(seed)).Float64
+	baseModel.RngSet = true
+}
+
+func (b *BaseModel) ClearBase(sm AlgorithmApplier) {
+	for x := 0; x < b.Fmx; x++ {
+		for y := 0; y < b.Fmy; y++ {
+			for t := 0; t < b.T; t++ {
+				b.Wave[x][y][t] = true
+			}
+			b.Changes[x][y] = false
+		}
+	}
+	if !b.RngSet {
+		b.Rng = rand.New(rand.NewSource(time.Now().UnixNano())).Float64
+	}
+	b.InitField = true
+	b.GenSuccess = false
 }
