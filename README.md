@@ -2,4 +2,4 @@
 
 ## written in go
 
-based off of https://github.com/shawnridgeway/wfc
+heavily based off of https://github.com/shawnridgeway/wfc 
