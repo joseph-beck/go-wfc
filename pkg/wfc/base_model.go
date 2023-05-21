@@ -20,7 +20,7 @@ type BaseModel struct {
 	Rng        func() float64 // Random number generator supplied at gen time
 }
 
-func (b *BaseModel) Observe(sm AlgorithmApplier) bool {
+func (b *BaseModel) Observe(sm Collapser) bool {
 	min := 1000.0
 	argminx := -1
 	argminy := -1
@@ -94,7 +94,7 @@ func (b *BaseModel) Observe(sm AlgorithmApplier) bool {
 	return false
 }
 
-func (b *BaseModel) IterateOnce(sm AlgorithmApplier) bool {
+func (b *BaseModel) IterateOnce(sm Collapser) bool {
 	finished := b.Observe(sm)
 
 	if finished {
@@ -108,7 +108,7 @@ func (b *BaseModel) IterateOnce(sm AlgorithmApplier) bool {
 	return false // Not finished yet
 }
 
-func (b *BaseModel) Iterate(sm AlgorithmApplier, iterations int) bool {
+func (b *BaseModel) Iterate(sm Collapser, iterations int) bool {
 	if !b.InitField {
 		sm.Clear()
 	}
@@ -122,7 +122,7 @@ func (b *BaseModel) Iterate(sm AlgorithmApplier, iterations int) bool {
 	return false // Not finished yet
 }
 
-func (baseModel *BaseModel) Generate(sm AlgorithmApplier) {
+func (baseModel *BaseModel) Generate(sm Collapser) {
 	sm.Clear()
 	for {
 		finished := baseModel.IterateOnce(sm)
@@ -141,7 +141,7 @@ func (baseModel *BaseModel) SetSeed(seed int64) {
 	baseModel.RngSet = true
 }
 
-func (b *BaseModel) ClearBase(sm AlgorithmApplier) {
+func (b *BaseModel) ClearBase(sm Collapser) {
 	for x := 0; x < b.Fmx; x++ {
 		for y := 0; y < b.Fmy; y++ {
 			for t := 0; t < b.T; t++ {

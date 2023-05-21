@@ -22,7 +22,7 @@ type Clearer interface {
 	Clear()
 }
 
-type AlgorithmApplier interface {
+type Collapser interface {
 	Iterator
 	Generator
 	Checker
