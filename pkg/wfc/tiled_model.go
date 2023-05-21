@@ -44,7 +44,7 @@ func NewTiledModel(data TiledData, width int, height int, periodic bool) *TiledM
 		Tiles:    make([]TilePattern, 0),
 	}
 
-	firstOccurrence := make(map[string]int)
+	first := make(map[string]int)
 	action := make([][]int, 0)
 
 	tile := func(transformer func(x int, y int) color.Color) TilePattern {
@@ -64,17 +64,20 @@ func NewTiledModel(data TiledData, width int, height int, periodic bool) *TiledM
 	}
 
 	for i := 0; i < len(data.Tiles); i++ {
-		currentTile := data.Tiles[i]
-		var cardinality int
-		var inversion1, inversion2 Inversion
+		current := data.Tiles[i]
+		var (
+			cardinality int
+			inv1        Inversion
+			inv2        Inversion
+		)
 
-		switch currentTile.Sym {
+		switch current.Sym {
 		case "L":
 			cardinality = 4
-			inversion1 = func(i int) int {
+			inv1 = func(i int) int {
 				return (i + 1) % 4
 			}
-			inversion2 = func(i int) int {
+			inv2 = func(i int) int {
 				if i%2 == 0 {
 					return i + 1
 				}
@@ -82,10 +85,10 @@ func NewTiledModel(data TiledData, width int, height int, periodic bool) *TiledM
 			}
 		case "T":
 			cardinality = 4
-			inversion1 = func(i int) int {
+			inv1 = func(i int) int {
 				return (i + 1) % 4
 			}
-			inversion2 = func(i int) int {
+			inv2 = func(i int) int {
 				if i%2 == 0 {
 					return i
 				}
@@ -93,63 +96,63 @@ func NewTiledModel(data TiledData, width int, height int, periodic bool) *TiledM
 			}
 		case "I":
 			cardinality = 2
-			inversion1 = func(i int) int {
+			inv1 = func(i int) int {
 				return 1 - i
 			}
-			inversion2 = func(i int) int {
+			inv2 = func(i int) int {
 				return i
 			}
 		case "\\":
 			cardinality = 2
-			inversion1 = func(i int) int {
+			inv1 = func(i int) int {
 				return 1 - i
 			}
-			inversion2 = func(i int) int {
+			inv2 = func(i int) int {
 				return 1 - i
 			}
 		case "X":
 			cardinality = 1
-			inversion1 = func(i int) int {
+			inv1 = func(i int) int {
 				return i
 			}
-			inversion2 = func(i int) int {
+			inv2 = func(i int) int {
 				return i
 			}
 		default:
 			cardinality = 1
-			inversion1 = func(i int) int {
+			inv1 = func(i int) int {
 				return i
 			}
-			inversion2 = func(i int) int {
+			inv2 = func(i int) int {
 				return i
 			}
 		}
 
 		m.T = len(action)
-		firstOccurrence[currentTile.Name] = m.T
+		first[current.Name] = m.T
 
 		for t := 0; t < cardinality; t++ {
 			action = append(action, []int{
 				m.T + t,
-				m.T + inversion1(t),
-				m.T + inversion1(inversion1(t)),
-				m.T + inversion1(inversion1(inversion1(t))),
-				m.T + inversion2(t),
-				m.T + inversion2(inversion1(t)),
-				m.T + inversion2(inversion1(inversion1(t))),
-				m.T + inversion2(inversion1(inversion1(inversion1(t)))),
+				m.T + inv1(t),
+				m.T + inv1(inv1(t)),
+				m.T + inv1(inv1(inv1(t))),
+				m.T + inv2(t),
+				m.T + inv2(inv1(t)),
+				m.T + inv2(inv1(inv1(t))),
+				m.T + inv2(inv1(inv1(inv1(t)))),
 			})
 		}
 
 		if data.Unique {
 			for t := 0; t < cardinality; t++ {
-				img := currentTile.Variants[t]
+				img := current.Variants[t]
 				m.Tiles = append(m.Tiles, tile(func(x, y int) color.Color {
 					return img.At(x, y)
 				}))
 			}
 		} else {
-			img := currentTile.Variants[0]
+			img := current.Variants[0]
 			m.Tiles = append(m.Tiles, tile(func(x, y int) color.Color {
 				return img.At(x, y)
 			}))
@@ -160,7 +163,7 @@ func NewTiledModel(data TiledData, width int, height int, periodic bool) *TiledM
 		}
 
 		for t := 0; t < cardinality; t++ {
-			m.Stationary = append(m.Stationary, currentTile.Weight)
+			m.Stationary = append(m.Stationary, current.Weight)
 		}
 	}
 
@@ -191,9 +194,9 @@ func NewTiledModel(data TiledData, width int, height int, periodic bool) *TiledM
 	for i := 0; i < len(data.Neighbors); i++ {
 		neighbor := data.Neighbors[i]
 
-		l := action[firstOccurrence[neighbor.Left]][neighbor.LeftNum]
+		l := action[first[neighbor.Left]][neighbor.LeftNum]
 		d := action[l][1]
-		r := action[firstOccurrence[neighbor.Right]][neighbor.RightNum]
+		r := action[first[neighbor.Right]][neighbor.RightNum]
 		u := action[r][1]
 
 		m.Propagator[0][r][l] = true
@@ -309,7 +312,7 @@ func (model *TiledModel) RenderCompleteImage() image.Image {
 	for i := range output {
 		output[i] = make([]color.Color, model.Fmy*model.TileSize)
 	}
-	
+
 	for y := 0; y < model.Fmy; y++ {
 		for x := 0; x < model.Fmx; x++ {
 			for yt := 0; yt < model.TileSize; yt++ {

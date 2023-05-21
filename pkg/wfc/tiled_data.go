@@ -86,12 +86,7 @@ func MakeTiledData(file string) TiledData {
 
 	neighbours := make([]Neighbour, len(rd.Neighbours))
 	for i, rn := range rd.Neighbours {
-		neighbours[i] = Neighbour{
-			Left:     rn.Left,
-			LeftNum:  rn.LeftNum,
-			Right:    rn.Right,
-			RightNum: rn.RightNum,
-		}
+		neighbours[i] = Neighbour(rn)
 	}
 
 	return TiledData{
