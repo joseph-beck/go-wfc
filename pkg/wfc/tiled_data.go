@@ -37,8 +37,8 @@ type TiledData struct {
 	Neighbors []Neighbour
 }
 
-func MakeTiledData(file string) TiledData {
-	dataFile, err := os.ReadFile("../../internal/input/" + file)
+func MakeTiledData(path string, file string) TiledData {
+	dataFile, err := os.ReadFile(path + file)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +56,7 @@ func MakeTiledData(file string) TiledData {
 		if rd.Unique {
 			i := 1
 			for {
-				if img, err := utils.LoadImage("../../internal/input/" + rd.Path + rt.Name + " " + strconv.Itoa(i) + ".png"); err == nil {
+				if img, err := utils.LoadImage(path + rd.Path + rt.Name + " " + strconv.Itoa(i) + ".png"); err == nil {
 					imgs = append(imgs, img)
 				} else {
 					break
@@ -64,7 +64,7 @@ func MakeTiledData(file string) TiledData {
 				i++
 			}
 		} else {
-			img, err := utils.LoadImage("../../internal/input/" + rd.Path + rt.Name + ".png")
+			img, err := utils.LoadImage(path + rd.Path + rt.Name + ".png")
 			if err != nil {
 				panic(err)
 			}

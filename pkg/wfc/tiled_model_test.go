@@ -15,7 +15,7 @@ func simpleTiledTest(t *testing.T, dataFileName, snapshotFileName string, iterat
 	width := 20
 	height := 20
 	seed := int64(42)
-	data := MakeTiledData(dataFileName)
+	data := MakeTiledData("../../internal/input/", dataFileName)
 
 	var outputImg image.Image
 	success, finished := false, false
